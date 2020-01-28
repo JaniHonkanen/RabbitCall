@@ -1,6 +1,6 @@
 # RabbitCall
 
-<img src="rabbit.png" style="padding: 10px; float: right"/>This little helper allows you to mix C++ and C# in the same application without writing boilerplate code or repeating definitions in different languages. It generates binding code for calling functions between C++ and C#, and translates C++ structures and other elements to C# and HLSL/GLSL.
+<img align="right" src="rabbit.png" style="padding: 10px;"/>This little helper allows you to mix C++ and C# in the same application without writing boilerplate code or repeating definitions in different languages. It generates binding code for calling functions between C++ and C#, and translates C++ structures and other elements to C# and HLSL/GLSL.
 
 While other tools exist with a similar purpose, this one puts emphasis on easy/fast development and real-time performance (e.g. for games and graphics engines).
 
