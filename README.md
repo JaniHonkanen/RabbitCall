@@ -444,7 +444,13 @@ If there are multiple partitions, the first partition is a special "main" partit
 
 ## Building RabbitCall yourself
 
-RabbitCall is written in portable C++17 using CMake and Boost 1.72, and can be built for other platforms besides those for which binaries are provided.
+RabbitCall is written in portable C++17 using CMake, and can be built for other platforms besides those for which binaries are provided.
+
+Libraries used:
+
+- [Boost 1.72](https://www.boost.org/) (must be installed separately for building).
+- [TinyXML2](https://github.com/leethomason/tinyxml2) (embedded in code, slightly modified).
+- [UTF8-CPP](http://utfcpp.sourceforge.net/) (embedded in code).
 
 ### Windows
 
