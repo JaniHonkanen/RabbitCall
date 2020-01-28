@@ -451,6 +451,7 @@ Libraries used:
 - [Boost 1.72](https://www.boost.org/) (must be installed separately for building).
 - [TinyXML2](https://github.com/leethomason/tinyxml2) (embedded in code, slightly modified).
 - [UTF8-CPP](http://utfcpp.sourceforge.net/) (embedded in code).
+- [GLFW 3.3.2](https://www.glfw.org/) (needed in the test program only, install and configure paths in project files if you want to run OpenGL tests).
 
 ### Windows
 
