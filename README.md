@@ -35,7 +35,7 @@ As for C# environments, .Net Core, .Net Framework and Mono are all supported.
 
 Once you have a C++ library project (.dll or .so) and a C# project that is supposed to use the C++ library, take the following steps to install the tool (assuming you are using Visual Studio):
 
-1. Include the `rabbitcall.h` file from the test project in your C++ project's headers.
+1. Include the header file from the test program ([rabbitcall.h](test/cpp_prj/src/rabbitcall/rabbitcall.h)) in your C++ project's headers.
 2. Copy the configuration file from the test program ([rabbitcall.xml](test/rabbitcall.xml)) to e.g. your C++ project folder. See the instructions in the file and update configuration settings if necessary (set paths, remove unnecessary type mappings).
 4. Enable unsafe code in the C# project settings (Build -> Allow unsafe code).
 5. If you want the tool to run automatically when building, add it to the C++ project: Configuration Properties -> Build Events -> Pre-Build Event for both release/debug configurations and set the paths:
