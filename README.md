@@ -36,7 +36,7 @@ As for C# environments, .Net Core, .Net Framework and Mono are all supported.
 Once you have a C++ library project (.dll or .so) and a C# project that is supposed to use the C++ library, take the following steps to install the tool (assuming you are using Visual Studio):
 
 1. Include the `rabbitcall.h` file from the test project in your C++ project's headers.
-2. Copy the configuration file `rabbitcall.xml` from the tool to e.g. your C++ project folder. See the instructions in the file and update configuration settings if necessary (set paths, remove unnecessary type mappings).
+2. Copy the configuration file from the test program ([rabbitcall.xml](test/rabbitcall.xml)) to e.g. your C++ project folder. See the instructions in the file and update configuration settings if necessary (set paths, remove unnecessary type mappings).
 4. Enable unsafe code in the C# project settings (Build -> Allow unsafe code).
 5. If you want the tool to run automatically when building, add it to the C++ project: Configuration Properties -> Build Events -> Pre-Build Event for both release/debug configurations and set the paths:
    `/path/to/rabbitcall.exe -configFile relative/path/to/rabbitcall.xml`
@@ -243,7 +243,7 @@ FXP struct Test2 {
 
 ### Strings and character encoding
 
-C# `string` objects can be passed to C++ using either UTF-8 or UTF-16 encoding. Each C++ string type (`std::string`, `std::u16string` etc.) can be converted to/from a C# `string` in the C++/C# interface by defining the encoding and C++ character type in the XML configuration file (see the test program's configuration for details).
+C# `string` objects can be passed to C++ using either UTF-8 or UTF-16 encoding. Each C++ string type (`std::string`, `std::u16string` etc.) can be converted to/from a C# `string` in the C++/C# interface by defining the encoding and C++ character type in the XML configuration file (see the test program's configuration for details: [rabbitcall.xml](test/rabbitcall.xml)).
 
 A convenient way to represent strings in C++ is to use UTF-8 in `std::string` objects and only convert them to another format when needed, e.g. `std::wstring` when calling Windows API (see <http://utf8everywhere.org/>). The test program's `std::string` mapping is configured this way.
 
