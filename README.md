@@ -454,6 +454,8 @@ Libraries used:
 - [UTF8-CPP](http://utfcpp.sourceforge.net/) (embedded in code).
 - [GLFW 3.3.2](https://www.glfw.org/) (needed in the test program only, install and configure paths in project files if you want to run OpenGL tests).
 
+See [implementation notes](rabbitcall/implementation_nodes.md).
+
 ### Windows
 
 In Visual Studio 2019, open CMake project by choosing File -> Open -> Folder -> select the main folder with the CMakeLists.txt file. Then edit the generated CMakeSettings.json file and add the following section to the top level (and set the path to your Boost installation):
