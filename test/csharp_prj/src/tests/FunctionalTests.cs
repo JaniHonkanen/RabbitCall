@@ -8,7 +8,7 @@ using static TestUtil;
 
 public unsafe class FunctionalTests {
 
-	public void run() {
+	public void run(bool openGlTestEnabled) {
 		Log.write("");
 		try {
 			// Create a C++ object and invoke some functions.
@@ -132,8 +132,11 @@ public unsafe class FunctionalTests {
 			}
 
 			// OpenGL.
-			{
+			if (openGlTestEnabled) {
 				NGlobal.testOpenGl();
+			}
+			else {
+				Log.write("Skipping OpenGL test", null, ConsoleColor.Yellow);
 			}
 
 			Log.write("*** FUNCTIONAL TEST SUCCESS ***", null, ConsoleColor.Green);

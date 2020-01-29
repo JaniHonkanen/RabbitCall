@@ -10,9 +10,14 @@ public unsafe class Program {
 		CultureInfo.DefaultThreadCurrentCulture = customCulture;
 		CultureInfo.DefaultThreadCurrentUICulture = customCulture;
 
+		bool openGlTestEnabled = true;
+		foreach (string arg in args) {
+			if (arg == "-skipOpenGlTest") openGlTestEnabled = false;
+		}
+
 		RabbitCallApi.init();
 
-		new FunctionalTests().run();
+		new FunctionalTests().run(openGlTestEnabled);
 		Log.write("");
 		new PerformanceTests().run();
 	}
