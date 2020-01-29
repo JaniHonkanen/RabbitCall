@@ -9,7 +9,6 @@ using static TestUtil;
 public unsafe class FunctionalTests {
 
 	public void run(bool openGlTestEnabled) {
-		Log.write("");
 		try {
 			// Create a C++ object and invoke some functions.
 			{

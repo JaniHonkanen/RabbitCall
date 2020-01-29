@@ -2,6 +2,7 @@
   "profiles": {
     "csharp_prj": {
       "commandName": "Project",
+      "commandLineArgs": "-dir \"../../../../..\"",
       "nativeDebugging": true
     }
   }
