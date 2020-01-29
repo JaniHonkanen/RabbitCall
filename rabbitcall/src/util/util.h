@@ -17,7 +17,6 @@ public:
 };
 
 #define EXC(msg) throw runtime_error(string(msg).c_str())
-//#define EXC(msg) throw exception((string(msg) + " --- " + __FUNCSIG__ + " in " + __FILE__ + ":line " + to_string(__LINE__)).c_str())
 
 #define CURRENT_SOURCE_LOCATION (string(__FILE__) + ":" + to_string(__LINE__) + " --- " + string(__func__))
 #define CHECK_NOT_NULL(p) if (!p) EXC(sb() << "Null pointer: " << #p << " (" << typeid(p).name() << ", " << CURRENT_SOURCE_LOCATION << ")")
