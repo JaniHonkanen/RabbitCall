@@ -104,7 +104,7 @@
 	-->
 	<csGlobalFunctionContainerClass>NGlobal</csGlobalFunctionContainerClass>
 
-	<maxThreads>1</maxThreads>
+	<maxThreads>16</maxThreads>
 	
 	<!--
 	These code lines will be added to the beginning of the generated .cpp file.
