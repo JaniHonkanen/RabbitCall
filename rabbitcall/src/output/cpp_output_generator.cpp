@@ -7,45 +7,43 @@ void CppOutputGenerator::outputCallbackWrapper(CppFuncVar *callbackParam, CppFun
 	CppFuncVar returnType = callbackParam->getFunctionReturnType();
 
 	output << OUTPUT_CALLBACK_WRAPPER "(" << wrapperClassName << ", ";
-	output << "typedef " << formatDeclaration(*callbackParam, "FunctionPtrType", TypePresentationType::CPP_TRANSFER_PARAMETER) << ", ";
-
-	output << formatDeclaration(returnType, "operator()", TypePresentationType::CPP_PUBLIC) << "(";
+	output << "typedef " << formatDeclaration(*callbackParam, "FunctionPtrType", Language::CPP, TypePresentation::TRANSFER_PARAMETER) << ", ";
+	output << formatDeclaration(returnType, "operator()", Language::CPP, TypePresentation::PUBLIC) << "(";
 
 	{
-		bool first = true;
+		StringJoiner joiner(&output, ",");
 		for (auto &param : callbackParam->functionParameters) {
-			if (!first) output << ", ";
-			first = false;
-			output << formatDeclaration(*param, TypePresentationType::CPP_PUBLIC);
+			joiner.append(formatDeclaration(*param, Language::CPP, TypePresentation::PUBLIC));
 		}
+		joiner.finish();
 	}
 
 	output << ") { ";
 	const char *returnTempVariableIfUsed = nullptr;
 	if (!returnType.isVoid()) {
 		returnTempVariableIfUsed = OUTPUT_RETURN_VALUE_TEMP;
-		output << formatDeclaration(returnType, OUTPUT_RETURN_VALUE_TEMP, TypePresentationType::CPP_TRANSFER_CALLBACK_RETURN_VALUE) << " = ";
+		output << formatDeclaration(returnType, OUTPUT_RETURN_VALUE_TEMP, Language::CPP, TypePresentation::TRANSFER_CALLBACK_RETURN_VALUE) << " = ";
 	}
-	output << "cb->callbackFunction(";
+	output << "cb->callbackHandler(";
 	{
-		bool first = true;
+		StringJoiner joiner(&output, ",");
 		for (auto &param : callbackParam->functionParameters) {
-			if (!first) output << ", ";
-			first = false;
-
-			output << param->declarationName;
+			string p = param->declarationName;
 			if (param->pointerDepth == 0) {
 				if (param->type->isString) {
-					output << ".c_str()"; // Strings from C++ to C# callbacks are passed as a pointer.
+					p.append(".c_str()"); // Strings from C++ to C# callbacks are passed as a pointer.
 				}
 			}
+			joiner.append(p);
 		}
+		joiner.append("cb->appCallback");
+		joiner.finish();
 	}
 	output << ");";
 	if (returnType.type->isString) {
 		// Convert the temporary "const char *" string to an std::string object (or similar depending on string type) before deallocating the temporary string.
 		returnTempVariableIfUsed = OUTPUT_RETURN_VALUE_TEMP2;
-		output << " " << formatDeclaration(returnType, OUTPUT_RETURN_VALUE_TEMP2, TypePresentationType::CPP_PUBLIC) << "(" << OUTPUT_RETURN_VALUE_TEMP << ");";
+		output << " " << formatDeclaration(returnType, OUTPUT_RETURN_VALUE_TEMP2, Language::CPP, TypePresentation::PUBLIC) << "(" << OUTPUT_RETURN_VALUE_TEMP << ");";
 
 		output << " " << OUTPUT_DEALLOCATE_TASKMEM << "((void *)" << OUTPUT_RETURN_VALUE_TEMP << ");";
 	}
@@ -93,7 +91,7 @@ void CppOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingCla
 		for (int i = 0; i < (int)func->functionParameters.size(); i++) {
 			string paramName = string(OUTPUT_PARAM_NAME_PREFIX) + to_string(i);
 			CppFuncVar *param = func->functionParameters.at(i).get();
-			joiner.append(formatDeclaration(*param, paramName, TypePresentationType::CPP_TRANSFER_PARAMETER));
+			joiner.append(formatDeclaration(*param, paramName, Language::CPP, TypePresentation::TRANSFER_PARAMETER));
 		}
 
 		for (int i = 0; i < (int)wrapperClassNamesByParameterIndex.size(); i++) {
@@ -101,7 +99,7 @@ void CppOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingCla
 		}
 
 		if (!func->isVoid()) {
-			joiner.append(formatDeclaration(getFunctionReturnValuePtrType(func), TypePresentationType::CPP_TRANSFER_RETURN_VALUE));
+			joiner.append(formatDeclaration(getFunctionReturnValuePtrType(func), Language::CPP, TypePresentation::TRANSFER_RETURN_VALUE));
 		}
 
 		if (isExceptionCheckEnabled) {
@@ -155,9 +153,8 @@ void CppOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingCla
 				if (param->isLambdaFunction) {
 					// Wrap the callback function pointer in a functor that can be passed e.g. as a lambda function to the final C++ function. Create a C++ object that maintains a reference count and releases
 					// the C# GC handle when there are no more C++ std::function objects or others referencing the callback, because the callback could be stored on the C++ side and used after this function has returned.
-					// It might be possible to optimize this by deferring the creation of the reference count object until there are more than one references on the C++ side, but callbacks are slow anyway and are avoided,
-					// because invoking a C# method from C++ is much slower than the other way around.
-					string functionPtrType = formatDeclaration(*param, "", TypePresentationType::CPP_TRANSFER_PARAMETER);
+					// It might be possible to optimize this by deferring the creation of the reference count object until there are more than one references on the C++ side.
+					string functionPtrType = formatDeclaration(*param, "", Language::CPP, TypePresentation::TRANSFER_PARAMETER);
 					joiner.append(sb() << wrapperClassNamesByParameterIndex.at(callbackIndex) << "(new " OUTPUT_CALLBACK_HOLDER "<" << functionPtrType << ">(" << paramName << ", " OUTPUT_CALLBACK_ID_PARAM_NAME_PREFIX << to_string(callbackIndex) << "))");
 					callbackIndex++;
 				}

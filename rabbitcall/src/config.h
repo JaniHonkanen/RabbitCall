@@ -1,5 +1,13 @@
 #pragma once
 
+enum class Language {
+	CPP,
+	CS,
+	HLSL,
+	GLSL
+};
+StringBuilder & operator<<(StringBuilder &b, Language o);
+
 struct TypeNamesByLanguage {
 	string cppType;
 	string csType;

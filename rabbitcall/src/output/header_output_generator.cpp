@@ -144,11 +144,11 @@ void HeaderOutputGenerator::generateOutput(StringBuilder &output) {
 			output.appendLine("template<typename T>");
 			output.appendLine("struct " OUTPUT_CALLBACK_HOLDER " {");
 			output.changeIndent(+1);
-			output.appendLine("T callbackFunction;");
-			output.appendLine("void *callbackId;");
+			output.appendLine("T callbackHandler;");
+			output.appendLine("void *appCallback;");
 			output.appendLine("std::atomic_int refCount;");
 			output.appendLine("");
-			output.appendLine(OUTPUT_CALLBACK_HOLDER "(T callbackFunction, void *callbackId) : callbackFunction(callbackFunction), callbackId(callbackId), refCount(1) {");
+			output.appendLine(OUTPUT_CALLBACK_HOLDER "(T callbackHandler, void *appCallback) : callbackHandler(callbackHandler), appCallback(appCallback), refCount(1) {");
 			output.appendLine("}");
 			output.appendLine("");
 			output.appendLine("void addRef() noexcept {");
@@ -162,8 +162,7 @@ void HeaderOutputGenerator::generateOutput(StringBuilder &output) {
 			output.appendLine("int oldValue = refCount.fetch_add(-1);");
 			output.appendLine("if (oldValue <= 1) {");
 			output.changeIndent(+1);
-			//out.appendLine("if (oldValue <= 0) throw std::logic_error(\"RabbitCall callback reference count should not become negative\");");
-			output.appendLine("rabbitCallInternal.releaseCallbackCallback(callbackId);");
+			output.appendLine("rabbitCallInternal.releaseCallbackCallback(appCallback);");
 			output.appendLine("delete this;");
 			output.changeIndent(-1);
 			output.appendLine("}");

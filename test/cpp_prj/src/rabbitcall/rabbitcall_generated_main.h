@@ -77,11 +77,11 @@ namespace RabbitCallInternalNamespace {
 	
 	template<typename T>
 	struct _rc_CbH {
-		T callbackFunction;
-		void *callbackId;
+		T callbackHandler;
+		void *appCallback;
 		std::atomic_int refCount;
 		
-		_rc_CbH(T callbackFunction, void *callbackId) : callbackFunction(callbackFunction), callbackId(callbackId), refCount(1) {
+		_rc_CbH(T callbackHandler, void *appCallback) : callbackHandler(callbackHandler), appCallback(appCallback), refCount(1) {
 		}
 		
 		void addRef() noexcept {
@@ -91,7 +91,7 @@ namespace RabbitCallInternalNamespace {
 		void releaseRef() noexcept {
 			int oldValue = refCount.fetch_add(-1);
 			if (oldValue <= 1) {
-				rabbitCallInternal.releaseCallbackCallback(callbackId);
+				rabbitCallInternal.releaseCallbackCallback(appCallback);
 				delete this;
 			}
 		}

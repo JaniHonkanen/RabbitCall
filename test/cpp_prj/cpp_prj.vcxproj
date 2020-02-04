@@ -191,6 +191,7 @@
     <ClInclude Include="src\rabbitcall\rabbitcall_generated_partition1.h" />
     <ClInclude Include="src\rabbitcall\rabbitcall_generated_partition2.h" />
     <ClInclude Include="src\special_tests.h" />
+    <ClInclude Include="src\util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\file_set_test\house\included_file_in_partition2.cpp" />
@@ -209,6 +210,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

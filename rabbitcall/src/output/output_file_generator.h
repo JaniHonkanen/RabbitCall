@@ -5,6 +5,11 @@
 #define OUTPUT_CALLBACK_ID_PARAM_NAME_PREFIX "cb"
 #define OUTPUT_CALLBACK "_rc_Cb"
 #define OUTPUT_CALLBACK_HOLDER "_rc_CbH"
+#define OUTPUT_CALLBACK_DELEGATE_INSTANCE_PARAM "_rc_cbdip"
+#define OUTPUT_TRANSFER_METHOD "_rc_tm"
+#define OUTPUT_TRANSFER_DELEGATE "_rc_td"
+#define OUTPUT_TRANSFER_DELEGATE_INSTANCE "_rc_tdi"
+#define OUTPUT_TRANSFER_DELEGATE_PTR "_rc_tdp"
 #define OUTPUT_FUNCTION_NAME_PREFIX "_rc_f"
 #define OUTPUT_RETURN_VALUE_PTR "_rc_r"
 #define OUTPUT_RETURN_VALUE_TEMP "_rc_rt"
@@ -28,18 +33,13 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // How a C++/C# type should be formatted in a particular context when generating glue code.
-enum class TypePresentationType {
+enum class TypePresentation {
 	// "Public" means that the type should be formatted as it is visible to the application, while "transfer" types are those that are used internally by the invocation system when transferring parameters between C++ and C#.
-	CPP_PUBLIC,
-	CPP_TRANSFER_PARAMETER, // Parameter from C# to a C++ function.
-	CPP_TRANSFER_RETURN_VALUE, // Return value from C++ function to C#.
-	CPP_TRANSFER_CALLBACK_PARAMETER, // Parameter to callback (from C++ to C#).
-	CPP_TRANSFER_CALLBACK_RETURN_VALUE, // Return value from callback (from C# to C++).
-	CS_PUBLIC,
-	CS_TRANSFER_PARAMETER, // Parameter from C# to a C++ function.
-	CS_TRANSFER_RETURN_VALUE, // Return value from C++ function to C#.
-	CS_TRANSFER_CALLBACK_PARAMETER, // Parameter to callback (from C++ to C#).
-	CS_TRANSFER_CALLBACK_RETURN_VALUE // Return value from callback (from C# to C++).
+	PUBLIC,
+	TRANSFER_PARAMETER, // Parameter from C# to a C++ function.
+	TRANSFER_RETURN_VALUE, // Return value from C++ function to C#.
+	TRANSFER_CALLBACK_PARAMETER, // Parameter to callback (from C++ to C#).
+	TRANSFER_CALLBACK_RETURN_VALUE, // Return value from callback (from C# to C++).
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +75,8 @@ public:
 	CppFuncVar getFunctionReturnValuePtrType(const CppFuncVar *func);
 
 	// Formats a type for either C++ or C# glue code.
-	string formatDeclaration(const CppFuncVar &declaration, const string &displayName, TypePresentationType presentation);
-	string formatDeclaration(const CppFuncVar &declaration, TypePresentationType presentation);
+	string formatDeclaration(const CppFuncVar &declaration, const string &displayName, Language language, TypePresentation presentation);
+	string formatDeclaration(const CppFuncVar &declaration, Language language, TypePresentation presentation);
 
 	bool outputComment(CppComment *comment, StringBuilder &output);
 

@@ -80,7 +80,7 @@ public unsafe class PInvokeStringTests {
 		return buffer;
 	}
 
-	public long test_stringParam_LPWStr() {
+	public long test_param_string_LPWStr() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			pinvokeTest_stringParam_utf16LPWStr(testString);
@@ -88,7 +88,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_LPStr() {
+	public long test_param_string_LPStr() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			pinvokeTest_stringParam_byteLPStr(testString);
@@ -96,7 +96,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_LPUTF8Str() {
+	public long test_param_string_LPUTF8Str() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			pinvokeTest_stringParam_LPUTF8Str(testString);
@@ -104,7 +104,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_LPUTF8Str_createStdString() {
+	public long test_param_string_LPUTF8Str_createStdString() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			pinvokeTest_stringParam_LPUTF8Str_createStdString(testString);
@@ -112,7 +112,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_fixedPtr() {
+	public long test_param_string_fixedPtr() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			fixed (char *p = testString) {
@@ -122,7 +122,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_fixedPtr_createStdU16String() {
+	public long test_param_string_fixedPtr_createStdU16String() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			fixed (char *p = testString) {
@@ -132,7 +132,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_fixedPtr_createStdString() {
+	public long test_param_string_fixedPtr_createStdString() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			fixed (char *p = testString) {
@@ -142,7 +142,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_convertToAscii_cs_newArray() {
+	public long test_param_string_convertToAscii_cs_newArray() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			fixed (byte* p = Encoding.ASCII.GetBytes(testString)) {
@@ -152,7 +152,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_convertToAscii_cs_threadStaticBuffer() {
+	public long test_param_string_convertToAscii_cs_threadStaticBuffer() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			byte[] buffer = getOrCreateThreadStaticBuffer();
@@ -166,7 +166,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_convertToUtf8_cs_newArray() {
+	public long test_param_string_convertToUtf8_cs_newArray() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			fixed (byte* p = Encoding.UTF8.GetBytes(testString)) {
@@ -176,7 +176,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_convertToUtf8_cs_threadStaticBuffer() {
+	public long test_param_string_convertToUtf8_cs_threadStaticBuffer() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			byte[] buffer = getOrCreateThreadStaticBuffer();
@@ -200,7 +200,7 @@ public unsafe class PInvokeStringTests {
 		pinvokeTest_stringParam_bytePtr(p);
 	}
 
-	public long test_stringParam_convertToUtf8_cs_stackalloc() {
+	public long test_param_string_convertToUtf8_cs_stackalloc() {
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
 			invoke_stringParam_convertToUtf8_cs_stackalloc();
@@ -208,7 +208,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_LPStr() {
+	public long test_return_string_LPStr() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
@@ -217,7 +217,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_LPWStr() {
+	public long test_return_string_LPWStr() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
@@ -226,7 +226,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_asciiPtr() {
+	public long test_return_string_asciiPtr() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
@@ -239,7 +239,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_utf16Ptr() {
+	public long test_return_string_utf16Ptr() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
@@ -252,7 +252,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_reuseBufferUtf16() {
+	public long test_return_string_reuseBufferUtf16() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {
@@ -269,7 +269,7 @@ public unsafe class PInvokeStringTests {
 		return rounds;
 	}
 
-	public long test_stringParam_stringReturn_allocateBufferUtf16() {
+	public long test_return_string_allocateBufferUtf16() {
 		pinvokeTest_setTestString(testString);
 		long rounds = defaultRounds;
 		for (long i = 0; i < rounds; i++) {

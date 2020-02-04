@@ -20,7 +20,7 @@ void CsOutputGenerator::NamespaceWriter::end(StringBuilder &output) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClassIfNotGlobal, int functionIndex, StringBuilder &output) {
+void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClassIfNotGlobal, int functionIndex, StringBuilder &output, vector<Callback> &callbacksOut) {
 	string entryPoint = partition->getFunctionEntryPoint(func, enclosingClassIfNotGlobal);
 	string externFunctionName = sb() << OUTPUT_FUNCTION_NAME_PREFIX << functionIndex;
 
@@ -49,10 +49,12 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 
 	// Create C# delegates for callback functions that are passed as a parameter to the C++ function.
 	vector<CppFuncVar *> callbackParameters;
-	vector<string> delegateNamesByParameterIndex; // Contains empty strings for those parameters that are not callback functions.
+	vector<int64_t> callbackIndicesByParameterIndex;
+	vector<string> delegateTypeNamesByParameterIndex; // Contains empty strings for those parameters that are not callback functions.
 	vector<string> delegateDeclarationLines;
-	for (auto &param : func->functionParameters) {
-		string delegateName;
+	for (const shared_ptr<CppFuncVar> &param : func->functionParameters) {
+		string delegateTypeName;
+		int64_t callbackIndex = -1;
 		if (param->isLambdaFunction) {
 			callbackParameters.push_back(param.get());
 
@@ -60,26 +62,28 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 
 			// Use C# built-in Action delegate for the callback if it does not have return values or parameters (P/Invoke does not allow generic Action<>/Func<> types).
 			if (returnType.isVoid() && param->functionParameters.empty()) {
-				delegateName = "Action";
+				delegateTypeName = "Action";
 			}
 			else {
-				delegateName = sb() << "Callback_" << func->declarationName << "_" << param->declarationName;
+				delegateTypeName = sb() << "Callback_" << func->declarationName << "_" << param->declarationName;
 
-				string returnTypeMarshalAttribute = returnType.type->csMarshalAttributeIfUsed;
-				if (!returnTypeMarshalAttribute.empty()) {
-					delegateDeclarationLines.push_back(sb() << "[return: " << returnTypeMarshalAttribute << "]");
-				}
-
-				StringBuilder parameterStrings;
-				StringJoiner joiner(&parameterStrings, ", ");
+				StringBuilder delegateParameterList;
+				StringJoiner joiner(&delegateParameterList, ", ");
 				for (auto &cbParam : param->functionParameters) {
-					joiner.append(formatDeclaration(*cbParam, TypePresentationType::CS_TRANSFER_CALLBACK_PARAMETER));
+					joiner.append(formatDeclaration(*cbParam, Language::CS, TypePresentation::PUBLIC));
 				}
 				joiner.finish();
-				delegateDeclarationLines.push_back(sb() << "public delegate " << formatDeclaration(param->getFunctionReturnType(), delegateName, TypePresentationType::CS_TRANSFER_CALLBACK_RETURN_VALUE) << "(" << parameterStrings << ");");
+				delegateDeclarationLines.push_back(sb() << "public delegate " << formatDeclaration(returnType, delegateTypeName, Language::CS, TypePresentation::PUBLIC) << "(" << delegateParameterList << ");");
 			}
+
+			callbackIndex = callbacksOut.size();
+			callbacksOut.emplace_back();
+			Callback &callback = callbacksOut.back();
+			callback.callback = param.get();
+			callback.publicDelegateTypeName = delegateTypeName;
 		}
-		delegateNamesByParameterIndex.push_back(delegateName);
+		delegateTypeNamesByParameterIndex.push_back(delegateTypeName);
+		callbackIndicesByParameterIndex.push_back(callbackIndex);
 	}
 
 	outputComment(func->comment.get(), output);
@@ -89,16 +93,16 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 
 		// Output the signature of the wrapper function that is called by application C# code.
 		{
-			output << "public " << (isNonStaticMember ? "" : "static ") << formatDeclaration(func->getFunctionReturnTypeAndName(), TypePresentationType::CS_PUBLIC) << "(";
+			output << "public " << (isNonStaticMember ? "" : "static ") << formatDeclaration(func->getFunctionReturnTypeAndName(), Language::CS, TypePresentation::PUBLIC) << "(";
 			StringJoiner joiner(&output, ", ");
 			for (int i = 0; i < (int)func->functionParameters.size(); i++) {
 				CppFuncVar *param = func->functionParameters.at(i).get();
-				string delegateName = delegateNamesByParameterIndex.at(i);
+				string delegateName = delegateTypeNamesByParameterIndex.at(i);
 				if (!delegateName.empty()) { // This parameter is a callback function
 					joiner.append(sb() << delegateName << " " << param->declarationName);
 				}
 				else {
-					joiner.append(formatDeclaration(*param, TypePresentationType::CS_PUBLIC));
+					joiner.append(formatDeclaration(*param, Language::CS, TypePresentation::PUBLIC));
 				}
 			}
 			joiner.finish();
@@ -108,7 +112,7 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 		output << OUTPUT_INTERNAL_UTIL_CLASS "." OUTPUT_CHECK_INIT "();";
 		
 		if (!func->isVoid()) {
-			output << formatDeclaration(func->getFunctionReturnTypeAndName(), returnValuePtrName, TypePresentationType::CS_TRANSFER_RETURN_VALUE) << ";";
+			output << formatDeclaration(func->getFunctionReturnTypeAndName(), returnValuePtrName, Language::CS, TypePresentation::TRANSFER_RETURN_VALUE) << ";";
 		}
 
 		if (isExceptionCheckEnabled) {
@@ -124,8 +128,16 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 				joiner.append(OUTPUT_THIS_PTR);
 			}
 
-			for (auto &param : func->functionParameters) {
-				joiner.append(param->declarationName);
+			for (int64_t i = 0; i < (int64_t)func->functionParameters.size(); i++) {
+				CppFuncVar *param = func->functionParameters.at(i).get();
+				int64_t callbackIndex = callbackIndicesByParameterIndex.at(i);
+				if (callbackIndex >= 0) {
+					// This is a callback parameter => send the pointer to the static delegate that receives the callback from C++.
+					joiner.append(sb() << OUTPUT_TRANSFER_DELEGATE_PTR << callbackIndex);
+				}
+				else {
+					joiner.append(param->declarationName);
+				}
 			}
 			
 			for (CppFuncVar *param : callbackParameters) {
@@ -179,12 +191,12 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 				
 				StringBuilder pb;
 				CppFuncVar *param = func->functionParameters.at(i).get();
-				string delegateNameIfCallback = delegateNamesByParameterIndex.at(i);
-				if (!delegateNameIfCallback.empty()) { // Check if the parameter is a callback function.
-					pb << delegateNameIfCallback << " " << paramName;
+				if (param->isLambdaFunction) {
+					// Send callback delegates as pointers.
+					pb << "IntPtr " << paramName;
 				}
 				else {
-					pb << formatDeclaration(*param, paramName , TypePresentationType::CS_TRANSFER_PARAMETER);
+					pb << formatDeclaration(*param, paramName, Language::CS, TypePresentation::TRANSFER_PARAMETER);
 				}
 				joiner.append(pb);
 			}
@@ -196,7 +208,7 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 
 			// Retrieve the C++ function's return value using an out-parameter pointer, because using return values in P/Invoke is more complicated for complex types and can be slower.
 			if (!func->isVoid()) {
-				joiner.append(formatDeclaration(getFunctionReturnValuePtrType(func), TypePresentationType::CS_TRANSFER_RETURN_VALUE));
+				joiner.append(formatDeclaration(getFunctionReturnValuePtrType(func), Language::CS, TypePresentation::TRANSFER_RETURN_VALUE));
 			}
 
 			if (isExceptionCheckEnabled) {
@@ -211,7 +223,7 @@ void CsOutputGenerator::outputFunction(CppFuncVar *func, CppClass *enclosingClas
 		output << '\n';
 	}
 
-	// Output delegate declarations.
+	// Output public delegates that the application uses.
 	for (const auto &line : delegateDeclarationLines) {
 		output.appendLine(line);
 	}
@@ -290,11 +302,13 @@ void CsOutputGenerator::outputClass(CppClass *clazz, StringBuilder &output) {
 			}
 		}
 
+		vector<Callback> callbacks;
 		int functionIndex = 0;
 		for (auto &func : partition->getAccessibleMemberFunctions(clazz)) {
-			outputFunction(func, clazz, functionIndex, output);
+			outputFunction(func, clazz, functionIndex, output, callbacks);
 			functionIndex++;
 		}
+		outputCallbackInternals(unqualifiedClassName, callbacks, output);
 
 		output.changeIndent(-1);
 		output.appendLine("}");
@@ -315,6 +329,82 @@ void CsOutputGenerator::outputClass(CppClass *clazz, StringBuilder &output) {
 	}
 
 	namespaceWriter.end(output);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CsOutputGenerator::outputCallbackInternals(const string &className, vector<Callback> &callbacks, StringBuilder &output) {
+	int64_t numCallbacks = (int64_t)callbacks.size();
+
+	if (numCallbacks > 0) {
+		output.appendLine("");
+	}
+
+	for (int64_t callbackIndex = 0; callbackIndex < numCallbacks; callbackIndex++) {
+		Callback &callback = callbacks.at(callbackIndex);
+
+		string transferDelegateTypeName = sb() << OUTPUT_TRANSFER_DELEGATE << callbackIndex;
+		CppFuncVar returnType = callback.callback->getFunctionReturnType();
+
+		output.appendIndent() << "static " << transferDelegateTypeName << " " OUTPUT_TRANSFER_DELEGATE_INSTANCE << callbackIndex << ";\n";
+		output.appendIndent() << "static " << "IntPtr " OUTPUT_TRANSFER_DELEGATE_PTR << callbackIndex << ";\n";
+
+		// If the return type needs special marshalling, output the necessary attribute.
+		string returnTypeMarshalAttribute = returnType.type->csMarshalAttributeIfUsed;
+		if (!returnTypeMarshalAttribute.empty()) {
+			output.appendIndent() << "[return: " << returnTypeMarshalAttribute << "]\n";
+		}
+
+		StringBuilder delegateParameterList;
+		StringJoiner joiner(&delegateParameterList, ", ");
+		for (auto &cbParam : callback.callback->functionParameters) {
+			joiner.append(formatDeclaration(*cbParam, Language::CS, TypePresentation::TRANSFER_CALLBACK_PARAMETER));
+		}
+		joiner.append("IntPtr " OUTPUT_CALLBACK_DELEGATE_INSTANCE_PARAM);
+		joiner.finish();
+
+		output.appendIndent() << "delegate " << formatDeclaration(returnType, transferDelegateTypeName, Language::CS, TypePresentation::TRANSFER_CALLBACK_RETURN_VALUE) << "(" << delegateParameterList << ");\n";
+
+		// Output a static method that receives the call from C++ and forwards it to the application delegate.
+		// P/Invoke would support passing a delegate directly to the native function, but IL2CPP supports only static delegates this way
+		// => use the forwarding method to add non-static delegate support to IL2CPP.
+		output.appendIndent() << "#if ENABLE_IL2CPP\n";
+		output.appendIndent() << "[AOT.MonoPInvokeCallback(typeof(" << transferDelegateTypeName << "))]\n";
+		output.appendIndent() << "#endif\n";
+		output.appendIndent() << "static " << formatDeclaration(returnType, sb() << OUTPUT_TRANSFER_METHOD << callbackIndex, Language::CS, TypePresentation::TRANSFER_CALLBACK_RETURN_VALUE) << "(" << delegateParameterList << ") {";
+
+		if (!returnType.isVoid()) {
+			output << "return ";
+		}
+		{
+			// Call the application delegate.
+			output << "((" << callback.publicDelegateTypeName << ")GCHandle.FromIntPtr(" OUTPUT_CALLBACK_DELEGATE_INSTANCE_PARAM ").Target)(";
+			StringJoiner joiner(&output, ",");
+			for (auto &param : callback.callback->functionParameters) {
+				joiner.append(param->declarationName);
+			}
+			joiner.finish();
+			output << ");";
+		}
+
+		output << "}\n";
+	}
+
+	if (numCallbacks > 0) {
+		// Output a static constructor that stores the transfer delegates and their function pointer to variables,
+		// so that the delegates won't be garbage-collected and so that the pointers are quickly available.
+		output.appendLine("");
+		output.appendIndent() << "static " << className << "() {\n";
+		output.changeIndent(+1);
+
+		for (int64_t callbackIndex = 0; callbackIndex < numCallbacks; callbackIndex++) {
+			output.appendIndent() << OUTPUT_TRANSFER_DELEGATE_INSTANCE << callbackIndex << " = " OUTPUT_TRANSFER_METHOD << callbackIndex << ";\n";
+			output.appendIndent() << OUTPUT_TRANSFER_DELEGATE_PTR << callbackIndex << " = Marshal.GetFunctionPointerForDelegate(" OUTPUT_TRANSFER_DELEGATE_INSTANCE << callbackIndex << ");\n";
+		}
+
+		output.changeIndent(-1);
+		output.appendIndent() << "}\n";
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -437,6 +527,9 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 			output.changeIndent(-1);
 			output.appendLine("}");
 			output.appendLine("");
+			output.appendLine("#if ENABLE_IL2CPP");
+			output.appendLine(sb() << "[AOT.MonoPInvokeCallback(typeof(ReleaseCallbackCallback))]");
+			output.appendLine("#endif");
 			output.appendLine("public static void releaseCallback(IntPtr callback) {");
 			output.changeIndent(+1);
 			output.appendLine("GCHandle.FromIntPtr(callback).Free();");
@@ -465,14 +558,17 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 		NamespaceWriter funcNamespaceWriter(entry.first);
 		funcNamespaceWriter.begin(output);
 
-		output.appendIndent() << "public static unsafe partial class " << config->csGlobalFunctionContainerClass << " {\n";
+		string globalClassName = config->csGlobalFunctionContainerClass;
+		output.appendIndent() << "public static unsafe partial class " << globalClassName << " {\n";
 		output.changeIndent(+1);
 
+		vector<Callback> callbacks;
 		int functionIndex = 0;
 		for (auto &func : entry.second) {
-			outputFunction(func, nullptr, functionIndex, output);
+			outputFunction(func, nullptr, functionIndex, output, callbacks);
 			functionIndex++;
 		}
+		outputCallbackInternals(globalClassName, callbacks, output);
 
 		output.changeIndent(-1);
 		output.appendLine("}");

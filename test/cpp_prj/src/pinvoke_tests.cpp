@@ -18,6 +18,8 @@ std::u16string pinvokeU16StringDummy;
 std::string testString;
 std::u16string testU16String;
 float4 testVector(1, 2, 3, 4);
+int (*testStaticCallback)(int);
+int (*testDynamicCallback)(void *, int);
 
 extern "C" RC_EXPORT uint8_t * pinvokeTest_getDummyResult() noexcept {
 	// Make sure the C++ compiler doesn't optimize away writing to the dummy variable.
@@ -123,6 +125,12 @@ extern "C" RC_EXPORT void pinvokeTest_vector4Param_direct(float4 v) noexcept {
 extern "C" RC_EXPORT void pinvokeTest_vector4Param_ptr(float4 v) noexcept {
 }
 
+extern "C" RC_EXPORT void pinvokeTest_vector2Param_direct(float2 v) noexcept {
+}
+
+extern "C" RC_EXPORT void pinvokeTest_vector2Param_ptr(float2 v) noexcept {
+}
+
 extern "C" RC_EXPORT float4 pinvokeTest_vector4Return_direct() noexcept {
 	return testVector;
 }
@@ -145,6 +153,30 @@ extern "C" RC_EXPORT double pinvokeTest_doubleReturn_direct() noexcept {
 
 extern "C" RC_EXPORT void pinvokeTest_doubleReturn_ptr(double *v) noexcept {
 	*v = 1.0;
+}
+
+extern "C" RC_EXPORT int pinvokeTest_invokeGivenStaticCallback(int (*cb)(int), int v) noexcept {
+	return cb(v);
+}
+
+extern "C" RC_EXPORT void pinvokeTest_setStaticCallback(int (*cb)(int)) noexcept {
+	testStaticCallback = cb;
+}
+
+extern "C" RC_EXPORT int pinvokeTest_invokeStoredStaticCallback(int v) noexcept {
+	return testStaticCallback(v);
+}
+
+extern "C" RC_EXPORT int pinvokeTest_invokeGivenDynamicCallback(int (*cb)(void *, int), void *obj, int v) noexcept {
+	return cb(obj, v);
+}
+
+extern "C" RC_EXPORT void pinvokeTest_setDynamicCallback(int (*cb)(void *, int)) noexcept {
+	testDynamicCallback = cb;
+}
+
+extern "C" RC_EXPORT int pinvokeTest_invokeStoredDynamicCallback(void *obj, int v) noexcept {
+	return testDynamicCallback(obj, v);
 }
 
 

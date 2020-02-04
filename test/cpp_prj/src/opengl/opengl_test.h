@@ -1,5 +1,5 @@
 #pragma once
 
-FXP void testOpenGl();
+FXP void testOpenGl(const std::string &projectDir);
 
 

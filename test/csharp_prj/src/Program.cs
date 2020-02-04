@@ -4,7 +4,7 @@ using CsNamespace;
 
 public unsafe class Program {
 
-	static void Main(string[] args) {
+	public static void Main(string[] args) {
 		CultureInfo customCulture = new CultureInfo("en-US");
 		customCulture.NumberFormat.NumberDecimalSeparator = ".";
 		CultureInfo.DefaultThreadCurrentCulture = customCulture;
@@ -30,7 +30,7 @@ public unsafe class Program {
 		Log.write("");
 		new RegressionTests().run(projectDir);
 		Log.write("");
-		new FunctionalTests().run(openGlTestEnabled);
+		new FunctionalTests().run(projectDir, openGlTestEnabled);
 		Log.write("");
 		new PerformanceTests().run();
 	}

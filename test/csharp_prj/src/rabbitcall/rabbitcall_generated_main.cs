@@ -123,6 +123,9 @@ namespace CsNamespace {
 			return s;
 		}
 		
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(ReleaseCallbackCallback))]
+		#endif
 		public static void releaseCallback(IntPtr callback) {
 			GCHandle.FromIntPtr(callback).Free();
 		}

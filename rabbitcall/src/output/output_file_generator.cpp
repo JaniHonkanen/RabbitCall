@@ -33,58 +33,67 @@ CppFuncVar OutputFileGenerator::getFunctionReturnValuePtrType(const CppFuncVar *
 	return type;
 }
 
-string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, const string &displayName, TypePresentationType presentation) {
+string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, const string &displayName, Language language, TypePresentation presentation) {
 	StringBuilder b;
 
 	TypeMapping *typeMapping = declaration.type;
 	int pointerDepthToUse = declaration.pointerDepth;
 	bool variableNameAlreadyWritten = false;
 
-	bool isCppTransferParameter = false;
-	bool isCsTransferParameter = false;
-	if (presentation == TypePresentationType::CPP_PUBLIC) {
-		b << typeMapping->typeNames.cppType;
-	}
-	else if (presentation == TypePresentationType::CPP_TRANSFER_PARAMETER) {
-		isCppTransferParameter = true;
-		b << typeMapping->cppTransferTypeName;
-	}
-	else if (presentation == TypePresentationType::CPP_TRANSFER_RETURN_VALUE) {
-		isCppTransferParameter = true;
-		if (typeMapping->isString) {
-			b << OUTPUT_PTR_AND_SIZE;
+	if (language == Language::CPP) {
+		if (presentation == TypePresentation::PUBLIC) {
+			b << typeMapping->typeNames.cppType;
 		}
-		else {
+		else if (presentation == TypePresentation::TRANSFER_PARAMETER) {
 			b << typeMapping->cppTransferTypeName;
 		}
-	}
-	else if (presentation == TypePresentationType::CPP_TRANSFER_CALLBACK_PARAMETER) {
-		isCppTransferParameter = true;
-		b << typeMapping->cppTransferTypeName;
-	}
-	else if (presentation == TypePresentationType::CPP_TRANSFER_CALLBACK_RETURN_VALUE) {
-		isCppTransferParameter = true;
-		b << typeMapping->cppTransferTypeName;
-	}
-	else if (presentation == TypePresentationType::CS_PUBLIC) {
-		b << typeMapping->typeNames.csType;
-		if (!typeMapping->isPassByValue) pointerDepthToUse = max(0, pointerDepthToUse - 1);
-	}
-	else if (presentation == TypePresentationType::CS_TRANSFER_PARAMETER || presentation == TypePresentationType::CS_TRANSFER_RETURN_VALUE || presentation == TypePresentationType::CS_TRANSFER_CALLBACK_PARAMETER || presentation == TypePresentationType::CS_TRANSFER_CALLBACK_RETURN_VALUE) {
-		isCsTransferParameter = true;
+		else if (presentation == TypePresentation::TRANSFER_RETURN_VALUE) {
+			if (typeMapping->isString) {
+				b << OUTPUT_PTR_AND_SIZE;
+			}
+			else {
+				b << typeMapping->cppTransferTypeName;
+			}
+		}
+		else if (presentation == TypePresentation::TRANSFER_CALLBACK_PARAMETER) {
+			b << typeMapping->cppTransferTypeName;
+		}
+		else if (presentation == TypePresentation::TRANSFER_CALLBACK_RETURN_VALUE) {
+			b << typeMapping->cppTransferTypeName;
+		}
 
+		if (presentation != TypePresentation::PUBLIC) {
+			if (declaration.isLambdaFunction) {
+				variableNameAlreadyWritten = true;
+				b << " (*" << displayName << ")(";
+				StringJoiner joiner(&b, ",");
+				for (auto &param : declaration.functionParameters) {
+					joiner.append(formatDeclaration(*param, "", Language::CPP, TypePresentation::TRANSFER_CALLBACK_PARAMETER));
+				}
+
+				if (presentation == TypePresentation::TRANSFER_PARAMETER) {
+					// Callback handlers take the pointer to the application callback as an extra parameter.
+					joiner.append("void *");
+				}
+
+				joiner.finish();
+				b << ")";
+			}
+		}
+	}
+	else if (language == Language::CS) {
 		// C++ pointers to pass-by-reference types are wrapped in a struct in C#.
-		if (!typeMapping->isPassByValue && pointerDepthToUse > 0) {
-			pointerDepthToUse--;
+		if (!typeMapping->isPassByValue) {
+			pointerDepthToUse = max(0, pointerDepthToUse - 1);
 		}
 
 		string type = typeMapping->typeNames.csType;
-		if (presentation == TypePresentationType::CS_TRANSFER_RETURN_VALUE) {
+		if (presentation == TypePresentation::TRANSFER_RETURN_VALUE) {
 			if (typeMapping->isString) {
 				type = OUTPUT_PTR_AND_SIZE;
 			}
 		}
-		else if (presentation == TypePresentationType::CS_TRANSFER_PARAMETER || presentation == TypePresentationType::CS_TRANSFER_CALLBACK_PARAMETER) {
+		else if (presentation == TypePresentation::TRANSFER_PARAMETER || presentation == TypePresentation::TRANSFER_CALLBACK_PARAMETER) {
 			string marshalAttribute = typeMapping->csMarshalAttributeIfUsed;
 			if (!marshalAttribute.empty()) {
 				b << "[" << marshalAttribute << "] ";
@@ -92,23 +101,12 @@ string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, con
 		}
 		b << type;
 	}
-
-	if (isCppTransferParameter) {
-		if (declaration.isLambdaFunction) {
-			variableNameAlreadyWritten = true;
-			b << " (*" << displayName << ")(";
-			bool first = true;
-			for (auto &param : declaration.functionParameters) {
-				if (!first) b << ", ";
-				first = false;
-				b << formatDeclaration(*param, "", TypePresentationType::CPP_TRANSFER_CALLBACK_PARAMETER);
-			}
-			b << ")";
-		}
+	else {
+		throw ParseException(declaration.sourceLocation, sb() << "Unsupported language for formatting declaration: " << language);
 	}
 
 	int64_t guaranteedAlignmentForStructPassByValue = 8;
-	if ((isCppTransferParameter || isCsTransferParameter) && typeMapping->isPassByValue && declaration.pointerDepth == 0 && (int64_t)typeMapping->alignment > guaranteedAlignmentForStructPassByValue) {
+	if (presentation != TypePresentation::PUBLIC && typeMapping->isPassByValue && declaration.pointerDepth == 0 && (int64_t)typeMapping->alignment > guaranteedAlignmentForStructPassByValue) {
 		throw ParseException(declaration.sourceLocation, sb() << "Cannot use pass-by-value (or pass-by-reference that is converted to pass-by-value in the interface) for type " << typeMapping->typeNames.cppType << ", because it requires alignment " << typeMapping->alignment << " but C# aligns parameters and return values only by " << guaranteedAlignmentForStructPassByValue
 			<< ". You can pass a pointer instead (and make sure it is aligned), or create a wrapper function that accepts an unaligned parameter or return value and invokes the original function (e.g. XMFLOAT4 instead of XMVECTOR).");
 	}
@@ -133,8 +131,8 @@ string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, con
 	return b;
 }
 
-string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, TypePresentationType presentation) {
-	return formatDeclaration(declaration, declaration.declarationName, presentation);
+string OutputFileGenerator::formatDeclaration(const CppFuncVar &declaration, Language language, TypePresentation presentation) {
+	return formatDeclaration(declaration, declaration.declarationName, language, presentation);
 }
 
 bool OutputFileGenerator::outputComment(CppComment *comment, StringBuilder &output) {

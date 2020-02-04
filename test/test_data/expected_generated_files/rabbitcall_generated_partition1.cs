@@ -46,7 +46,7 @@ namespace CsNamespace {
 		
 		public static void handleBicycle(IncludedBicycleStruct s)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f16(s,&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_global_handleBicycle")] static extern void _rc_f16(IncludedBicycleStruct a0,_rc_PtrAndSize *_rc_e);
 		
-		public static void testOpenGl()        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f17(&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_global_testOpenGl")] static extern void _rc_f17(_rc_PtrAndSize *_rc_e);
+		public static void testOpenGl(string projectDir)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f17(projectDir,&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_global_testOpenGl")] static extern void _rc_f17([MarshalAs(UnmanagedType.LPUTF8Str)] string a0,_rc_PtrAndSize *_rc_e);
 	}
 	
 	namespace CppOuterNamespace {
@@ -249,29 +249,87 @@ namespace CsNamespace {
 		
 		public void release()        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f0(_rc_t,&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_release")] static extern void _rc_f0(void *_rc_t,_rc_PtrAndSize *_rc_e);
 		
-		public string invokeGivenCallback(string s1, string s2, Callback_invokeGivenCallback_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_r;_rc_PtrAndSize _rc_e;_rc_f1(_rc_t,s1,s2,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_Ciu.readStringUtf8AndFree(_rc_r);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeGivenCallback")] static extern void _rc_f1(void *_rc_t,[MarshalAs(UnmanagedType.LPUTF8Str)] string a0,[MarshalAs(UnmanagedType.LPUTF8Str)] string a1,Callback_invokeGivenCallback_callback a2,void *cb0,_rc_PtrAndSize *_rc_r,_rc_PtrAndSize *_rc_e);
-		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
-		public delegate string Callback_invokeGivenCallback_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string p1, [MarshalAs(UnmanagedType.LPUTF8Str)] string p2);
+		public string invokeGivenCallback(string s1, string s2, Callback_invokeGivenCallback_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_r;_rc_PtrAndSize _rc_e;_rc_f1(_rc_t,s1,s2,_rc_tdp0,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_Ciu.readStringUtf8AndFree(_rc_r);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeGivenCallback")] static extern void _rc_f1(void *_rc_t,[MarshalAs(UnmanagedType.LPUTF8Str)] string a0,[MarshalAs(UnmanagedType.LPUTF8Str)] string a1,IntPtr a2,void *cb0,_rc_PtrAndSize *_rc_r,_rc_PtrAndSize *_rc_e);
+		public delegate string Callback_invokeGivenCallback_callback(string p1, string p2);
 		
-		public string invokeGivenCallbackUtf16(string s1, string s2, Callback_invokeGivenCallbackUtf16_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_r;_rc_PtrAndSize _rc_e;_rc_f2(_rc_t,s1,s2,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_Ciu.readStringUtf16AndFree(_rc_r);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeGivenCallbackUtf16")] static extern void _rc_f2(void *_rc_t,[MarshalAs(UnmanagedType.LPWStr)] string a0,[MarshalAs(UnmanagedType.LPWStr)] string a1,Callback_invokeGivenCallbackUtf16_callback a2,void *cb0,_rc_PtrAndSize *_rc_r,_rc_PtrAndSize *_rc_e);
-		[return: MarshalAs(UnmanagedType.LPWStr)]
-		public delegate string Callback_invokeGivenCallbackUtf16_callback([MarshalAs(UnmanagedType.LPWStr)] string p1, [MarshalAs(UnmanagedType.LPWStr)] string p2);
+		public string invokeGivenCallbackUtf16(string s1, string s2, Callback_invokeGivenCallbackUtf16_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_r;_rc_PtrAndSize _rc_e;_rc_f2(_rc_t,s1,s2,_rc_tdp1,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_Ciu.readStringUtf16AndFree(_rc_r);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeGivenCallbackUtf16")] static extern void _rc_f2(void *_rc_t,[MarshalAs(UnmanagedType.LPWStr)] string a0,[MarshalAs(UnmanagedType.LPWStr)] string a1,IntPtr a2,void *cb0,_rc_PtrAndSize *_rc_r,_rc_PtrAndSize *_rc_e);
+		public delegate string Callback_invokeGivenCallbackUtf16_callback(string p1, string p2);
 		
-		public void setCallback(Callback_setCallback_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f3(_rc_t,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_setCallback")] static extern void _rc_f3(void *_rc_t,Callback_setCallback_callback a0,void *cb0,_rc_PtrAndSize *_rc_e);
-		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
-		public delegate string Callback_setCallback_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string s1, [MarshalAs(UnmanagedType.LPUTF8Str)] string s2);
+		public void setCallback(Callback_setCallback_callback callback)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_e;_rc_f3(_rc_t,_rc_tdp2,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_e);_rc_Ciu._rc_ce(_rc_e);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_setCallback")] static extern void _rc_f3(void *_rc_t,IntPtr a0,void *cb0,_rc_PtrAndSize *_rc_e);
+		public delegate string Callback_setCallback_callback(string s1, string s2);
 		
 		public string invokeStoredCallback(string s1, string s2)        /****/ {_rc_Ciu._rc_ci();_rc_PtrAndSize _rc_r;_rc_PtrAndSize _rc_e;_rc_f4(_rc_t,s1,s2,&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_Ciu.readStringUtf8AndFree(_rc_r);} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeStoredCallback")] static extern void _rc_f4(void *_rc_t,[MarshalAs(UnmanagedType.LPUTF8Str)] string a0,[MarshalAs(UnmanagedType.LPUTF8Str)] string a1,_rc_PtrAndSize *_rc_r,_rc_PtrAndSize *_rc_e);
 		
-		public long invokeIntCallbackRepeatedly(long rounds, Callback_invokeIntCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f5(_rc_t,rounds,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeIntCallbackRepeatedly")] static extern void _rc_f5(void *_rc_t,long a0,Callback_invokeIntCallbackRepeatedly_callback a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
+		public long invokeIntCallbackRepeatedly(long rounds, Callback_invokeIntCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f5(_rc_t,rounds,_rc_tdp3,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeIntCallbackRepeatedly")] static extern void _rc_f5(void *_rc_t,long a0,IntPtr a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
 		public delegate int Callback_invokeIntCallbackRepeatedly_callback(int i1, int i2);
 		
-		public long invokeStringParamCallbackRepeatedly(long rounds, Callback_invokeStringParamCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f6(_rc_t,rounds,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeStringParamCallbackRepeatedly")] static extern void _rc_f6(void *_rc_t,long a0,Callback_invokeStringParamCallbackRepeatedly_callback a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
-		public delegate int Callback_invokeStringParamCallbackRepeatedly_callback([MarshalAs(UnmanagedType.LPUTF8Str)] string s);
+		public long invokeStringParamCallbackRepeatedly(long rounds, Callback_invokeStringParamCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f6(_rc_t,rounds,_rc_tdp4,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeStringParamCallbackRepeatedly")] static extern void _rc_f6(void *_rc_t,long a0,IntPtr a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
+		public delegate int Callback_invokeStringParamCallbackRepeatedly_callback(string s);
 		
-		public long invokeStringReturnValueCallbackRepeatedly(long rounds, Callback_invokeStringReturnValueCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f7(_rc_t,rounds,callback,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeStringReturnValueCallbackRepeatedly")] static extern void _rc_f7(void *_rc_t,long a0,Callback_invokeStringReturnValueCallbackRepeatedly_callback a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
-		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
+		public long invokeStringReturnValueCallbackRepeatedly(long rounds, Callback_invokeStringReturnValueCallbackRepeatedly_callback callback)        /****/ {_rc_Ciu._rc_ci();long _rc_r;_rc_PtrAndSize _rc_e;_rc_f7(_rc_t,rounds,_rc_tdp5,(void *)GCHandle.ToIntPtr(GCHandle.Alloc(callback)),&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_CallbackTest_invokeStringReturnValueCallbackRepeatedly")] static extern void _rc_f7(void *_rc_t,long a0,IntPtr a1,void *cb0,long *_rc_r,_rc_PtrAndSize *_rc_e);
 		public delegate string Callback_invokeStringReturnValueCallbackRepeatedly_callback();
+		
+		static _rc_td0 _rc_tdi0;
+		static IntPtr _rc_tdp0;
+		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
+		delegate string _rc_td0([MarshalAs(UnmanagedType.LPUTF8Str)] string p1, [MarshalAs(UnmanagedType.LPUTF8Str)] string p2, IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td0))]
+		#endif
+		static string _rc_tm0([MarshalAs(UnmanagedType.LPUTF8Str)] string p1, [MarshalAs(UnmanagedType.LPUTF8Str)] string p2, IntPtr _rc_cbdip) {return ((Callback_invokeGivenCallback_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)(p1,p2);}
+		static _rc_td1 _rc_tdi1;
+		static IntPtr _rc_tdp1;
+		[return: MarshalAs(UnmanagedType.LPWStr)]
+		delegate string _rc_td1([MarshalAs(UnmanagedType.LPWStr)] string p1, [MarshalAs(UnmanagedType.LPWStr)] string p2, IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td1))]
+		#endif
+		static string _rc_tm1([MarshalAs(UnmanagedType.LPWStr)] string p1, [MarshalAs(UnmanagedType.LPWStr)] string p2, IntPtr _rc_cbdip) {return ((Callback_invokeGivenCallbackUtf16_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)(p1,p2);}
+		static _rc_td2 _rc_tdi2;
+		static IntPtr _rc_tdp2;
+		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
+		delegate string _rc_td2([MarshalAs(UnmanagedType.LPUTF8Str)] string s1, [MarshalAs(UnmanagedType.LPUTF8Str)] string s2, IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td2))]
+		#endif
+		static string _rc_tm2([MarshalAs(UnmanagedType.LPUTF8Str)] string s1, [MarshalAs(UnmanagedType.LPUTF8Str)] string s2, IntPtr _rc_cbdip) {return ((Callback_setCallback_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)(s1,s2);}
+		static _rc_td3 _rc_tdi3;
+		static IntPtr _rc_tdp3;
+		delegate int _rc_td3(int i1, int i2, IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td3))]
+		#endif
+		static int _rc_tm3(int i1, int i2, IntPtr _rc_cbdip) {return ((Callback_invokeIntCallbackRepeatedly_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)(i1,i2);}
+		static _rc_td4 _rc_tdi4;
+		static IntPtr _rc_tdp4;
+		delegate int _rc_td4([MarshalAs(UnmanagedType.LPUTF8Str)] string s, IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td4))]
+		#endif
+		static int _rc_tm4([MarshalAs(UnmanagedType.LPUTF8Str)] string s, IntPtr _rc_cbdip) {return ((Callback_invokeStringParamCallbackRepeatedly_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)(s);}
+		static _rc_td5 _rc_tdi5;
+		static IntPtr _rc_tdp5;
+		[return: MarshalAs(UnmanagedType.LPUTF8Str)]
+		delegate string _rc_td5(IntPtr _rc_cbdip);
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(_rc_td5))]
+		#endif
+		static string _rc_tm5(IntPtr _rc_cbdip) {return ((Callback_invokeStringReturnValueCallbackRepeatedly_callback)GCHandle.FromIntPtr(_rc_cbdip).Target)();}
+		
+		static NCallbackTest() {
+			_rc_tdi0 = _rc_tm0;
+			_rc_tdp0 = Marshal.GetFunctionPointerForDelegate(_rc_tdi0);
+			_rc_tdi1 = _rc_tm1;
+			_rc_tdp1 = Marshal.GetFunctionPointerForDelegate(_rc_tdi1);
+			_rc_tdi2 = _rc_tm2;
+			_rc_tdp2 = Marshal.GetFunctionPointerForDelegate(_rc_tdi2);
+			_rc_tdi3 = _rc_tm3;
+			_rc_tdp3 = Marshal.GetFunctionPointerForDelegate(_rc_tdi3);
+			_rc_tdi4 = _rc_tm4;
+			_rc_tdp4 = Marshal.GetFunctionPointerForDelegate(_rc_tdi4);
+			_rc_tdi5 = _rc_tm5;
+			_rc_tdp5 = Marshal.GetFunctionPointerForDelegate(_rc_tdi5);
+		}
 	}
 	
 	namespace CppOuterNamespace {

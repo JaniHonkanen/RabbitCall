@@ -1,5 +1,16 @@
 #include "pch.h"
 
+StringBuilder & operator<<(StringBuilder &b, Language o) {
+	if (o == Language::CPP) b << "CPP";
+	else if (o == Language::CS) b << "CS";
+	else if (o == Language::HLSL) b << "HLSL";
+	else if (o == Language::GLSL) b << "GLSL";
+	else b << (int)o;
+	return b;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void ConfigParameterMap::add(const string &name, const string &value, const string &errorMessageForDuplicateParameter) {
 	if (valuesByName.find(name) != valuesByName.end()) EXC(sb() << errorMessageForDuplicateParameter << ": " << name);
 	valuesByName[name] = value;

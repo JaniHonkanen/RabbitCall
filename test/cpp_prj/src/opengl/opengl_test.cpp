@@ -35,25 +35,12 @@ void printShaderCompileInfoLog(GLuint shader, const char *shaderName) {
 	}
 }
 
-string readFile(const string& file) {
-	ifstream is(file, ifstream::binary);
-	if (!is) throw runtime_error(string("Error opening file: ") + file);
-	is.seekg(0, ifstream::end);
-	ifstream::pos_type length = is.tellg();
-	is.seekg(0, ifstream::beg);
-	string result;
-	result.resize(length);
-	is.read(result.data(), length);
-	if (!is) throw runtime_error(string("Error reading file: ") + file);
-	return result;
-}
-
 struct Vertex {
 	float x, y;
 };
 
-void testOpenGl() {
-	string shaderIncludeFile = readFile("rabbitcall_generated_partition1.glsl");
+void testOpenGl(const std::string &projectDir) {
+	string shaderIncludeFile = readFile(combinePath(projectDir, "csharp_prj/src/rabbitcall/rabbitcall_generated_partition1.glsl"));
 
 	CHECK_GLFW_ERROR(glfwInit());
 
