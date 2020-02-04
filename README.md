@@ -32,7 +32,7 @@ The tool has been built for x64 on Windows and Linux, but is likely to work on m
 
 As for C# environments, .Net Core, .Net Framework and Mono are all supported.
 
-Unity engine is also supported, see details below.
+Unity engine is supported with both IL2CPP and Mono, see details below.
 
 ## Installation
 
