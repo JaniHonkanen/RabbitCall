@@ -32,6 +32,8 @@ The tool has been built for x64 on Windows and Linux, but is likely to work on m
 
 As for C# environments, .Net Core, .Net Framework and Mono are all supported.
 
+Unity engine is also supported, see details below.
+
 ## Installation
 
 Once you have a C++ library project (.dll or .so) and a C# project that is supposed to use the C++ library, take the following steps to install the tool (assuming you are using Visual Studio):
