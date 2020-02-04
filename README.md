@@ -12,6 +12,7 @@ Benefits in comparison to other tools:
 - Fast function call performance from C# to C++: 10 CPU cycles overhead for an empty function, 20 cycles for a function that returns the sum of two given `Vector4`'s.
 - Zero C# GC overhead in most use cases, including C++ object creation and pointer wrapping in C# => suitable for real-time applications (wrappers implemented as C# structs instead of classes).
 - Supports C++ exception propagation to C#.
+- Unity engine support.
 - HLSL/GLSL support: C++ structs and enums can be exported to HLSL/GLSL as structs, constant buffers, uniform blocks and constant variables.
 - Some C++ reflection features for enums, e.g. `operator<<`, `toString()`, `parse()`.
 - Safer callbacks: C# delegates and lambda functions that are passed to C++ are wrapped in std::function objects that prevent the C# object from being garbage-collected until the std::function and all its copies are released (which is a cause of random crashes with some other C++/C# interop tools).
@@ -60,6 +61,16 @@ The tool can also be run on a different OS than the target OS of your applicatio
        `<CopyToOutputDirectory>Always</CopyToOutputDirectory>`
      `</None>`
    `</ItemGroup>`
+
+### Unity engine
+
+Unity C# scripts can use a C++ .dll/.so with RabbitCall in the same way as any C# application can. Both IL2CPP and Mono backends are supported. Additionally, non-static callbacks from C++ to C# are supported with both backends (whereas IL2CPP would natively support only static callbacks).
+
+- Include the RabbitCall-generated .cs files and .cpp/.h files in the C# scripts and in the C++ library project.
+- Have your build script copy the C++ .dll/.so file to the game build directory.
+- In Project Settings -> Player Settings -> Other Settings:
+  - Check "allow unsafe code".
+  - Set API compatibility level to .Net 4.x or higher (2.0 Standard may also work but won't support UTF-8 strings).
 
 ## Usage
 
@@ -427,7 +438,9 @@ On Windows 10 using .Net Core 3.1 or .Net Framework 4.8, simple function calls f
 
 On Ubuntu Linux 18.04 using .Net Core 3.1, the performance is somewhat worse: 80 CPU cycles for C# to C++ calls, 260 cycles for C++ to C# calls, 500 cycles for passing short strings and 2000 for passing delegates.
 
-On Mono, the P/Invoke calls used by RabbitCall are significantly slower than on .Net Core/Framework, and simple function calls may take hundreds of CPU cycles. This might not be a limiting factor in most cases, but you might want to use Mono's "internal calls" in the most performance-critical functions.
+With Unity using IL2CPP, simple function calls are almost as fast as on .Net Core on Windows, while strings and callbacks are about twice as slow.
+
+On Mono, the P/Invoke calls used by RabbitCall are significantly slower than on .Net Core/Framework, and simple function calls may take hundreds of CPU cycles. This might not be a limiting factor in most cases, but you might want to use Mono's "internal calls" instead in the most performance-critical functions.
 
 ## Large project considerations
 
