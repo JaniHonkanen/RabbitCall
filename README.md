@@ -162,7 +162,9 @@ Also multiple inheritance is supported, but not with virtual base classes.
 
 ### Callbacks, lambda functions
 
-C# delegates and lambda functions can be passed to C++ and then called back or stored as std::function objects:
+C# delegates and lambda functions can be passed to C++ and then called back or stored as std::function objects.
+
+C++:
 
 ```C++
 std::function<void(int)> storedCallback;
