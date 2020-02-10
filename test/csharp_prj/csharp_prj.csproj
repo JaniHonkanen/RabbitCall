@@ -22,10 +22,6 @@
     <None Include="$(SolutionDir)$(Platform)\$(ConfigurationName)\cpp_prj.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <ContentWithTargetPath Include="$(ProjectDir)\src\rabbitcall\rabbitcall_generated_partition1.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <TargetPath>rabbitcall_generated_partition1.glsl</TargetPath>
-    </ContentWithTargetPath>
   </ItemGroup>
 
   <ItemGroup>
