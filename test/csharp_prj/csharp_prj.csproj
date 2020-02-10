@@ -24,7 +24,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\rabbitcall\" />
-  </ItemGroup>
 </Project>
