@@ -5,3 +5,4 @@
 - Some parts of the processing are multi-threaded (e.g. source directory scanning, source file parsing).
 - All std::strings are in UTF-8.
 - Error messages are formatted in a particular way so that if the user clicks on them in Visual Studio, the corresponding location in the source file will be opened.
+- Pinning C# objects and the `fixed` keyword are avoided, because they could cause significant GC performance problems.

@@ -34,7 +34,7 @@ As for C# environments, .Net Core, .Net Framework and Mono are all supported.
 
 Unity engine is supported with both IL2CPP and Mono, see details below.
 
-## Installation
+## Getting started
 
 Once you have a C++ library project (.dll or .so) and a C# project that is supposed to use the C++ library, take the following steps to install the tool (assuming you are using Visual Studio):
 
@@ -51,7 +51,7 @@ Once you have a C++ library project (.dll or .so) and a C# project that is suppo
 
 The tool can also be run on a different OS than the target OS of your application, and the generated code can usually be compiled to several OSes without running the tool separately for each.
 
-### Visual Studio configuration to use a C++ .dll in a C# project
+### Visual Studio configuration for using a C++ .dll in a C# project
 
 1. Create a C# project and a C++ project in the same solution.
 2. Configure the C++ project to output a .dll.
@@ -63,6 +63,8 @@ The tool can also be run on a different OS than the target OS of your applicatio
        `<CopyToOutputDirectory>Always</CopyToOutputDirectory>`
      `</None>`
    `</ItemGroup>`
+6. If you use the .Net Core command-line publishing tool, you need to specify values for the variables used in the .csproj file (note the trailing backslash in `SolutionDir`):
+   `dotnet publish -c Release -r win-x64 /p:SolutionDir=C:\my_project\ /p:Platform=x64 /p:ConfigurationName=Release`
 
 ### Unity engine
 
