@@ -9,6 +9,12 @@ using System.Text;
 
 namespace CsNamespace {
 	
+	public static unsafe partial class _rc_Ciu {
+		public static void initPartition_partition2(StringBuilder versionString) {
+			versionString.Append("partition2=1.0.1");
+		}
+	}
+	
 	public static unsafe partial class NGlobal {
 		
 		public static int partition2Test()        /****/ {_rc_Ciu._rc_ci();int _rc_r;_rc_PtrAndSize _rc_e;_rc_f0(&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_global_partition2Test")] static extern void _rc_f0(int *_rc_r,_rc_PtrAndSize *_rc_e);

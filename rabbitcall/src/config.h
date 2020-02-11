@@ -63,6 +63,7 @@ public:
 	};
 
 	string programName = "RabbitCall";
+	string version = "1.0.1";
 	bool perfTestMode = false;
 	bool dryRunMode = false;
 
@@ -76,6 +77,7 @@ public:
 	string csNamespace;
 	string csGlobalFunctionContainerClass;
 	int maxThreads = 1;
+	bool showStatistics = false;
 	int64_t pointerSizeBits = 64;
 	string generatedCppFilePrologue;
 	map<string, OutputDir> outputDirsByType;

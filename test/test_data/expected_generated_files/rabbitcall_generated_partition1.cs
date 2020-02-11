@@ -9,6 +9,22 @@ using System.Text;
 
 namespace CsNamespace {
 	
+	public static unsafe partial class _rc_Ciu {
+		public static void initPartition_partition1(StringBuilder versionString) {
+			versionString.Append("partition1=1.0.1");
+			checkTypeSize("TestStruct1", "TestStruct1", sizeof(TestStruct1), 584);
+			checkTypeSize("TestStruct2", "TestStruct2", sizeof(TestStruct2), 592);
+			checkTypeSize("AlignedStruct1", "AlignedStruct1", sizeof(AlignedStruct1), 32);
+			checkTypeSize("GpuStruct", "GpuStruct", sizeof(GpuStruct), 96);
+			checkTypeSize("GpuConstantBuffer", "GpuConstantBuffer", sizeof(GpuConstantBuffer), 192);
+			checkTypeSize("CppOuterNamespace::CppInnerNamespace::StructInsideNamespace", "CppOuterNamespace.CppInnerNamespace.StructInsideNamespace", sizeof(CppOuterNamespace.CppInnerNamespace.StructInsideNamespace), 4);
+			checkTypeSize("TestStruct3", "TestStruct3", sizeof(TestStruct3), 608);
+			checkTypeSize("SpecialCasesStruct", "SpecialCasesStruct", sizeof(SpecialCasesStruct), 32);
+			checkTypeSize("IncludedVehicleStruct", "IncludedVehicleStruct", sizeof(IncludedVehicleStruct), 4);
+			checkTypeSize("IncludedBicycleStruct", "IncludedBicycleStruct", sizeof(IncludedBicycleStruct), 4);
+		}
+	}
+	
 	public static unsafe partial class NGlobal {
 		
 		public static CppOuterNamespace.NTestClass2 createTestClass2Instance(string name, int index)        /****/ {_rc_Ciu._rc_ci();CppOuterNamespace.NTestClass2 _rc_r;_rc_PtrAndSize _rc_e;_rc_f0(name,index,&_rc_r,&_rc_e);_rc_Ciu._rc_ce(_rc_e);return _rc_r;} [SuppressUnmanagedCodeSecurity, DllImport(_rc_Ciu._rc_cl, EntryPoint = "rabbitcall_global_createTestClass2Instance")] static extern void _rc_f0([MarshalAs(UnmanagedType.LPUTF8Str)] string a0,int a1,CppOuterNamespace.NTestClass2 *_rc_r,_rc_PtrAndSize *_rc_e);

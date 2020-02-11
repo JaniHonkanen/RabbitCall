@@ -21,7 +21,7 @@ namespace CsNamespace {
 		public long size;
 	}
 	
-	public static unsafe class _rc_Ciu {
+	public static unsafe partial class _rc_Ciu {
 		public const string _rc_cl = "cpp_prj";
 		static bool isInitialized = false;
 		static Encoding utf8Encoding = new UTF8Encoding();
@@ -32,7 +32,7 @@ namespace CsNamespace {
 		
 		delegate void ReleaseCallbackCallback(IntPtr ptr);
 		[SuppressUnmanagedCodeSecurity, DllImport(_rc_cl, EntryPoint = "rabbitcall_init")]
-		static extern void rabbitcall_init(ReleaseCallbackCallback releaseCallbackCallback, _rc_PtrAndSize *exceptionPtr);
+		static extern void rabbitcall_init(ReleaseCallbackCallback releaseCallbackCallback, _rc_PtrAndSize *versionStringPtr, _rc_PtrAndSize *exceptionPtr);
 		
 		[SuppressUnmanagedCodeSecurity, DllImport(_rc_cl, EntryPoint = "rabbitcall_allocateMemory")]
 		public static extern void * rabbitcall_allocateMemory(long size);
@@ -55,9 +55,53 @@ namespace CsNamespace {
 			
 			_rc_PtrAndSize _rc_e;
 			releaseCallbackCallback = _rc_Ciu.releaseCallback;
-			rabbitcall_init(releaseCallbackCallback, &_rc_e);
+			_rc_PtrAndSize cppVersionStringPtr;
+			rabbitcall_init(releaseCallbackCallback, &cppVersionStringPtr, &_rc_e);
 			if (_rc_e.ptr != null) throw new Exception(_rc_Ciu.readStringUtf8AndFree(_rc_e));
+			string cppVersionString = readStringUtf8AndFree(cppVersionStringPtr);
 			
+			StringBuilder csVersionStringBuilder = new StringBuilder();
+			initPartition_main(csVersionStringBuilder);
+			csVersionStringBuilder.Append(",");
+			initPartition_partition1(csVersionStringBuilder);
+			csVersionStringBuilder.Append(",");
+			initPartition_partition2(csVersionStringBuilder);
+			string csVersionString = csVersionStringBuilder.ToString();
+			if (cppVersionString != csVersionString) throw new Exception($"Some C++ and C# files were generated with different versions of the tool:\nC++: {cppVersionString}\nC#:  {csVersionString}");
+			
+			if (sizeof(void *) != 8) throw new Exception($"Different configured pointer size (8 bytes) than actual size ({sizeof(void *)} bytes)");
+		}
+		
+		public static void _rc_ci() {
+			if (!isInitialized) throw new Exception("RabbitCall not initialized, please call RabbitCallApi.init() at startup (for all partitions if you have multiple ones).");
+		}
+		
+		public static string readStringUtf8AndFree(_rc_PtrAndSize ptr) {
+			if (ptr.ptr == null) return null;
+			string s = utf8Encoding.GetString((byte *)ptr.ptr, checked((int)(ptr.size - sizeof(byte))));
+			rabbitcall_deallocateMemory(ptr.ptr); // Free the buffer that was allocated in c++
+			return s;
+		}
+		
+		public static string readStringUtf16AndFree(_rc_PtrAndSize ptr) {
+			if (ptr.ptr == null) return null;
+			string s = utf16Encoding.GetString((byte *)ptr.ptr, checked((int)(ptr.size - sizeof(char))));
+			rabbitcall_deallocateMemory(ptr.ptr); // Free the buffer that was allocated in c++
+			return s;
+		}
+		
+		#if ENABLE_IL2CPP
+		[AOT.MonoPInvokeCallback(typeof(ReleaseCallbackCallback))]
+		#endif
+		public static void releaseCallback(IntPtr callback) {
+			GCHandle.FromIntPtr(callback).Free();
+		}
+		
+		public static void _rc_ce(_rc_PtrAndSize _rc_e) {
+			if (_rc_e.ptr != null) throw new Exception(readStringUtf8AndFree(_rc_e));
+		}
+		public static void initPartition_main(StringBuilder versionString) {
+			versionString.Append("main=1.0.1");
 			checkTypeSize("char", "byte", sizeof(byte), 1);
 			checkTypeSize("char16_t", "char", sizeof(char), 2);
 			checkTypeSize("bool", "bool", sizeof(bool), 1);
@@ -91,47 +135,6 @@ namespace CsNamespace {
 			checkTypeSize("float2", "System.Numerics.Vector2", sizeof(System.Numerics.Vector2), 8);
 			checkTypeSize("float4x4", "System.Numerics.Matrix4x4", sizeof(System.Numerics.Matrix4x4), 64);
 			checkTypeSize("CustomSharedStruct", "CustomSharedStruct", sizeof(CustomSharedStruct), 20);
-			checkTypeSize("TestStruct1", "TestStruct1", sizeof(TestStruct1), 584);
-			checkTypeSize("TestStruct2", "TestStruct2", sizeof(TestStruct2), 592);
-			checkTypeSize("AlignedStruct1", "AlignedStruct1", sizeof(AlignedStruct1), 32);
-			checkTypeSize("GpuStruct", "GpuStruct", sizeof(GpuStruct), 96);
-			checkTypeSize("GpuConstantBuffer", "GpuConstantBuffer", sizeof(GpuConstantBuffer), 192);
-			checkTypeSize("CppOuterNamespace::CppInnerNamespace::StructInsideNamespace", "CppOuterNamespace.CppInnerNamespace.StructInsideNamespace", sizeof(CppOuterNamespace.CppInnerNamespace.StructInsideNamespace), 4);
-			checkTypeSize("TestStruct3", "TestStruct3", sizeof(TestStruct3), 608);
-			checkTypeSize("SpecialCasesStruct", "SpecialCasesStruct", sizeof(SpecialCasesStruct), 32);
-			checkTypeSize("IncludedVehicleStruct", "IncludedVehicleStruct", sizeof(IncludedVehicleStruct), 4);
-			checkTypeSize("IncludedBicycleStruct", "IncludedBicycleStruct", sizeof(IncludedBicycleStruct), 4);
-			
-			if (sizeof(void *) != 8) throw new Exception($"Different configured pointer size (8 bytes) than actual size ({sizeof(void *)} bytes)");
-		}
-		
-		public static void _rc_ci() {
-			if (!isInitialized) throw new Exception("RabbitCall not initialized, please call RabbitCallApi.init() at startup (for all partitions if you have multiple ones).");
-		}
-		
-		public static string readStringUtf8AndFree(_rc_PtrAndSize ptr) {
-			if (ptr.ptr == null) return null;
-			string s = utf8Encoding.GetString((byte *)ptr.ptr, checked((int)(ptr.size - sizeof(byte))));
-			rabbitcall_deallocateMemory(ptr.ptr); // Free the buffer that was allocated in c++
-			return s;
-		}
-		
-		public static string readStringUtf16AndFree(_rc_PtrAndSize ptr) {
-			if (ptr.ptr == null) return null;
-			string s = utf16Encoding.GetString((byte *)ptr.ptr, checked((int)(ptr.size - sizeof(char))));
-			rabbitcall_deallocateMemory(ptr.ptr); // Free the buffer that was allocated in c++
-			return s;
-		}
-		
-		#if ENABLE_IL2CPP
-		[AOT.MonoPInvokeCallback(typeof(ReleaseCallbackCallback))]
-		#endif
-		public static void releaseCallback(IntPtr callback) {
-			GCHandle.FromIntPtr(callback).Free();
-		}
-		
-		public static void _rc_ce(_rc_PtrAndSize _rc_e) {
-			if (_rc_e.ptr != null) throw new Exception(readStringUtf8AndFree(_rc_e));
 		}
 	}
 }

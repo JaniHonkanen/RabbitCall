@@ -97,7 +97,7 @@ namespace RabbitCallInternalNamespace {
 		}
 	};
 	
-	void initPartition_main();
-	void initPartition_partition1();
-	void initPartition_partition2();
+	void initPartition_main(std::string &versionString);
+	void initPartition_partition1(std::string &versionString);
+	void initPartition_partition2(std::string &versionString);
 }

@@ -448,11 +448,13 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 		output.appendLine("public long size;");
 		output.changeIndent(-1);
 		output.appendLine("}");
+	}
 
-		output.appendLine("");
-		output.appendLine("public static unsafe class " OUTPUT_INTERNAL_UTIL_CLASS " {");
-		output.changeIndent(+1);
-		{
+	output.appendLine("");
+	output.appendLine("public static unsafe partial class " OUTPUT_INTERNAL_UTIL_CLASS " {");
+	output.changeIndent(+1);
+	{
+		if (isMainPartition()) {
 			output.appendIndent() << "public const string " OUTPUT_CPP_LIBRARY_FILE " = \"" << getCppLibraryFile() << "\";\n";
 			output.appendLine("static bool isInitialized = false;");
 			output.appendLine("static Encoding utf8Encoding = new UTF8Encoding();");
@@ -463,7 +465,7 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 			output.appendLine("");
 			output.appendLine("delegate void ReleaseCallbackCallback(IntPtr ptr);");
 			output.appendIndent() << "[SuppressUnmanagedCodeSecurity, DllImport(" OUTPUT_CPP_LIBRARY_FILE ", EntryPoint = \"rabbitcall_init\")]\n";
-			output.appendLine("static extern void rabbitcall_init(ReleaseCallbackCallback releaseCallbackCallback, " OUTPUT_PTR_AND_SIZE " *exceptionPtr);");
+			output.appendLine("static extern void rabbitcall_init(ReleaseCallbackCallback releaseCallbackCallback, " OUTPUT_PTR_AND_SIZE " *versionStringPtr, " OUTPUT_PTR_AND_SIZE " *exceptionPtr);");
 			output.appendLine("");
 			output.appendIndent() << "[SuppressUnmanagedCodeSecurity, DllImport(" OUTPUT_CPP_LIBRARY_FILE ", EntryPoint = \"rabbitcall_allocateMemory\")]\n";
 			output.appendLine("public static extern void * rabbitcall_allocateMemory(long size);");
@@ -489,14 +491,22 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 			output.appendLine("");
 			output.appendLine(OUTPUT_PTR_AND_SIZE " " OUTPUT_EXCEPTION_PTR ";");
 			output.appendLine("releaseCallbackCallback = " OUTPUT_INTERNAL_UTIL_CLASS ".releaseCallback;");
-			output.appendLine("rabbitcall_init(releaseCallbackCallback, &" OUTPUT_EXCEPTION_PTR ");");
+			output.appendLine(OUTPUT_PTR_AND_SIZE " cppVersionStringPtr;");
+			output.appendLine("rabbitcall_init(releaseCallbackCallback, &cppVersionStringPtr, &" OUTPUT_EXCEPTION_PTR ");");
 			output.appendLine("if (" OUTPUT_EXCEPTION_PTR ".ptr != null) throw new Exception(" OUTPUT_INTERNAL_UTIL_CLASS ".readStringUtf8AndFree(" OUTPUT_EXCEPTION_PTR "));");
+			output.appendLine("string cppVersionString = readStringUtf8AndFree(cppVersionStringPtr);");
 			output.appendLine("");
-			partition->getTypeMap()->forEachTypeMapping([&](TypeMapping *typeMapping) {
-				if (typeMapping->hasDefinedSize()) {
-					output.appendIndent() << "checkTypeSize(\"" << typeMapping->typeNames.cppType << "\", \"" << typeMapping->typeNames.csType << "\", sizeof(" << typeMapping->typeNames.csType << "), " << typeMapping->size << ");\n";
-				}
-			});
+			{
+				output.appendLine("StringBuilder csVersionStringBuilder = new StringBuilder();");
+				bool firstPartition = true;
+				cppProject->forEachPartition([&](CppPartition *p) {
+					if (!firstPartition) output.appendLine("csVersionStringBuilder.Append(\",\");");
+					firstPartition = false;
+					output.appendLine(sb() << "initPartition_" << p->getName() << "(csVersionStringBuilder);");
+				});
+				output.appendLine("string csVersionString = csVersionStringBuilder.ToString();");
+			}
+			output.appendIndent() << "if (cppVersionString != csVersionString) throw new Exception($\"Some C++ and C# files were generated with different versions of the tool:\\nC++: {cppVersionString}\\nC#:  {csVersionString}\");\n";
 			output.appendLine("");
 			int64_t configuredPointerSize = config->getPointerSizeBytes();
 			output.appendIndent() << "if (sizeof(void *) != " << configuredPointerSize << ") throw new Exception($\"Different configured pointer size (" << configuredPointerSize << " bytes) than actual size ({sizeof(void *)} bytes)\");\n";
@@ -542,9 +552,22 @@ void CsOutputGenerator::generateOutput(StringBuilder &output) {
 			output.changeIndent(-1);
 			output.appendLine("}");
 		}
+
+		output.appendIndent() << "public static void initPartition_" << partition->getName() << "(StringBuilder versionString) {\n";
+		output.changeIndent(+1);
+		output.appendIndent() << "versionString.Append(\"" << partition->getName() << "=" << config->version << "\");\n";
+		partition->getTypeMap()->forEachTypeMapping([&](TypeMapping *typeMapping) {
+			if ((typeMapping->partitionName.empty() && isMainPartition()) || typeMapping->partitionName == partition->getName()) {
+				if (typeMapping->hasDefinedSize()) {
+					output.appendIndent() << "checkTypeSize(\"" << typeMapping->typeNames.cppType << "\", \"" << typeMapping->typeNames.csType << "\", sizeof(" << typeMapping->typeNames.csType << "), " << typeMapping->size << ");\n";
+				}
+			}
+		});
 		output.changeIndent(-1);
 		output.appendLine("}");
 	}
+	output.changeIndent(-1);
+	output.appendLine("}");
 
 	map<string, vector<CppFuncVar *>> globalFunctionsByNamespace;
 	partition->forEachGlobalFunction([&](CppFuncVar *func) {

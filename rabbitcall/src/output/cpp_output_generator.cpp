@@ -339,7 +339,7 @@ void CppOutputGenerator::generateOutput(StringBuilder &output) {
 
 	if (isMainPartition()) {
 		output.appendLine("");
-		output.appendLine("extern \"C\" RC_EXPORT void rabbitcall_init(void(*releaseCallbackCallback)(void *), " OUTPUT_PTR_AND_SIZE " *" OUTPUT_EXCEPTION_PTR ") noexcept {");
+		output.appendLine("extern \"C\" RC_EXPORT void rabbitcall_init(void(*releaseCallbackCallback)(void *), " OUTPUT_PTR_AND_SIZE " *versionStringPtr, " OUTPUT_PTR_AND_SIZE " *" OUTPUT_EXCEPTION_PTR ") noexcept {");
 		output.changeIndent(+1);
 		output.appendLine("try {");
 		output.changeIndent(+1);
@@ -355,9 +355,16 @@ void CppOutputGenerator::generateOutput(StringBuilder &output) {
 				output.appendLine(sb() << "if (" << stringCharSizeExpr << " != " << charTypeMapping->size << ") throw std::logic_error((std::string(\"The character type ('" << charType << "') configured for " << m->typeNames.cppType << " has incorrect size: " << charTypeMapping->size << ", expected: \") + std::to_string(" << stringCharSizeExpr << ") + \" (wrong character type in configuration file?)\").c_str());");
 			}
 		});
-		cppProject->forEachPartition([&](CppPartition *p) {
-			output.appendLine(sb() << "RabbitCallInternalNamespace::initPartition_" << p->getName() << "();");
-		});
+		{
+			output.appendLine("std::string versionString;");
+			bool firstPartition = true;
+			cppProject->forEachPartition([&](CppPartition *p) {
+				if (!firstPartition) output.appendLine("versionString += \",\";");
+				firstPartition = false;
+				output.appendLine(sb() << "RabbitCallInternalNamespace::initPartition_" << p->getName() << "(versionString);");
+			});
+			output.appendLine("if (versionStringPtr) *versionStringPtr = _rc_createString(versionString);");
+		}
 		output.changeIndent(-1);
 		output.appendLine("}");
 		output.appendLine("catch (std::exception &" OUTPUT_EXCEPTION_VAR ") {");
@@ -392,8 +399,9 @@ void CppOutputGenerator::generateOutput(StringBuilder &output) {
 	}
 
 	output.appendLine("");
-	output.appendLine(sb() << "void RabbitCallInternalNamespace::initPartition_" << partition->getName() << "() {");
+	output.appendLine(sb() << "void RabbitCallInternalNamespace::initPartition_" << partition->getName() << "(std::string &versionString) {");
 	output.changeIndent(+1);
+	output.appendIndent() << "versionString += \"" << partition->getName() << "=" << config->version << "\";\n";
 	typeMap->forEachTypeMapping([&](TypeMapping *typeMapping) {
 		if ((typeMapping->partitionName.empty() && isMainPartition()) || typeMapping->partitionName == partition->getName()) {
 			string typeName = typeMapping->typeNames.cppType;

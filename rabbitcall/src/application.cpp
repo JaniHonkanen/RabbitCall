@@ -55,7 +55,9 @@ int Application::run(int argc, char *argv[]) {
 
 			double secondsElapsed = getTimeSeconds() - startTime;
 			performanceCounts.add("total time", secondsElapsed);
-			LOG_INFO(sb() << "Processed " << (stats.numSourceBytes / 1048576.0) << " MB (" << stats.numSourceFiles << " files, " << stats.numClasses << " classes, " << stats.numFunctions << " functions) in " << secondsElapsed << " seconds (" << (stats.numSourceBytes / 1048576.0 / secondsElapsed) << " MB/s)");
+			if (config->showStatistics) {
+				LOG_INFO(sb() << "Processed " << (stats.numSourceBytes / 1048576.0) << " MB (" << stats.numSourceFiles << " files, " << stats.numClasses << " classes, " << stats.numFunctions << " functions) in " << secondsElapsed << " seconds (" << (stats.numSourceBytes / 1048576.0 / secondsElapsed) << " MB/s)");
+			}
 			LOG_INFO("Cross-language bindings generated successfully.");
 		}
 

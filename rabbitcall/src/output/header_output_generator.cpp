@@ -173,7 +173,7 @@ void HeaderOutputGenerator::generateOutput(StringBuilder &output) {
 
 			output.appendLine("");
 			cppProject->forEachPartition([&](CppPartition *p) {
-				output.appendLine(sb() << "void initPartition_" << p->getName() << "();");
+				output.appendLine(sb() << "void initPartition_" << p->getName() << "(std::string &versionString);");
 			});
 		}
 		output.changeIndent(-1);

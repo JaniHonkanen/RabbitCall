@@ -116,7 +116,13 @@ Config::Config(int argc, char *argv[], ErrorList *errorList) {
 
 	Path configFile;
 	try {
-		logger->setMessagePrefix(programName); // Use the program name as log message prefix although it may be overridden later after the config has been read.
+		// Use the program name as log message prefix although it may be overridden later after the config has been read.s
+		logger->setMessagePrefix(programName);
+
+		// Show version number if no command-line arguments were given. An error message will also be displayed about missing parameters.
+		if (argc < 2) {
+			LOG_INFO(sb() << "Version " << version);
+		}
 
 		ConfigParameterMap cmdLineParams;
 		{
@@ -218,6 +224,8 @@ Config::Config(int argc, char *argv[], ErrorList *errorList) {
 		maxThreads = (int)getIntegerConfigValue("maxThreads");
 		if (maxThreads == 0) maxThreads = 16;
 		else if (maxThreads < 1 || maxThreads > 1000) EXC(sb() << "Invalid maxThreads: " << maxThreads);
+
+		showStatistics = parseBool(params.getOrThrowAndMarkUsed("showStatistics"));
 
 		generatedCppFilePrologue = params.getOrThrowAndMarkUsed("generatedCppFilePrologue");
 

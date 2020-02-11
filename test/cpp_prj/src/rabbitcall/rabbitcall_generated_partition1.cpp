@@ -21,7 +21,8 @@ namespace RabbitCallInternalNamespace {
 
 using namespace RabbitCallInternalNamespace;
 
-void RabbitCallInternalNamespace::initPartition_partition1() {
+void RabbitCallInternalNamespace::initPartition_partition1(std::string &versionString) {
+	versionString += "partition1=1.0.1";
 	rabbitCallInternal.typesByName["TestStruct1"] = new RabbitCallType("TestStruct1", sizeof(TestStruct1));
 	rabbitCallInternal.typesByName["TestStruct2"] = new RabbitCallType("TestStruct2", sizeof(TestStruct2));
 	rabbitCallInternal.typesByName["AlignedStruct1"] = new RabbitCallType("AlignedStruct1", sizeof(AlignedStruct1));

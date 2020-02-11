@@ -65,16 +65,20 @@ namespace RabbitCallInternalNamespace {
 
 using namespace RabbitCallInternalNamespace;
 
-extern "C" RC_EXPORT void rabbitcall_init(void(*releaseCallbackCallback)(void *), _rc_PtrAndSize *_rc_e) noexcept {
+extern "C" RC_EXPORT void rabbitcall_init(void(*releaseCallbackCallback)(void *), _rc_PtrAndSize *versionStringPtr, _rc_PtrAndSize *_rc_e) noexcept {
 	try {
 		if (rabbitCallInternal.initialized) throw std::logic_error("RabbitCall already initialized");
 		rabbitCallInternal.initialized = true;
 		rabbitCallInternal.releaseCallbackCallback = releaseCallbackCallback;
 		if (sizeof(std::string().c_str()[0]) != 1) throw std::logic_error((std::string("The character type ('char') configured for std::string has incorrect size: 1, expected: ") + std::to_string(sizeof(std::string().c_str()[0])) + " (wrong character type in configuration file?)").c_str());
 		if (sizeof(std::u16string().c_str()[0]) != 2) throw std::logic_error((std::string("The character type ('char16_t') configured for std::u16string has incorrect size: 2, expected: ") + std::to_string(sizeof(std::u16string().c_str()[0])) + " (wrong character type in configuration file?)").c_str());
-		RabbitCallInternalNamespace::initPartition_main();
-		RabbitCallInternalNamespace::initPartition_partition1();
-		RabbitCallInternalNamespace::initPartition_partition2();
+		std::string versionString;
+		RabbitCallInternalNamespace::initPartition_main(versionString);
+		versionString += ",";
+		RabbitCallInternalNamespace::initPartition_partition1(versionString);
+		versionString += ",";
+		RabbitCallInternalNamespace::initPartition_partition2(versionString);
+		if (versionStringPtr) *versionStringPtr = _rc_createString(versionString);
 	}
 	catch (std::exception &_rc_ex) {
 		*_rc_e = _rc_createString(std::string(_rc_ex.what()));
@@ -94,7 +98,8 @@ extern "C" RC_EXPORT int64_t rabbitcall_getTypeSizeByName(const char *name) noex
 	return type == NULL ? -1 : (int64_t)type->getSize();
 }
 
-void RabbitCallInternalNamespace::initPartition_main() {
+void RabbitCallInternalNamespace::initPartition_main(std::string &versionString) {
+	versionString += "main=1.0.1";
 	rabbitCallInternal.typesByName["std::function"] = new RabbitCallType("std::function", 0);
 	rabbitCallInternal.typesByName["std::string"] = new RabbitCallType("std::string", 0);
 	rabbitCallInternal.typesByName["char"] = new RabbitCallType("char", sizeof(char));
