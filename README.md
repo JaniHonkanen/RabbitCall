@@ -30,7 +30,7 @@ Limitations:
 
 The tool has been built for x64 on Windows and Linux, but is likely to work on many other platforms if you compile the tool yourself.
 
-As for C# environments, .Net Core, .Net Framework and Mono are all supported.
+As for C# environments, .Net 5.0, .Net Core, .Net Framework and Mono are all supported.
 
 Unity engine is supported with both IL2CPP and Mono, see details below.
 
@@ -63,7 +63,7 @@ The tool can also be run on a different OS than the target OS of your applicatio
        `<CopyToOutputDirectory>Always</CopyToOutputDirectory>`
      `</None>`
    `</ItemGroup>`
-6. If you use the .Net Core command-line publishing tool, you need to specify values for the variables used in the .csproj file (note the trailing backslash in `SolutionDir`):
+6. If you use the .Net command-line publishing tool, you need to specify values for the variables used in the .csproj file (note the trailing backslash in `SolutionDir`):
    `dotnet publish -c Release -r win-x64 /p:SolutionDir=C:\my_project\ /p:Platform=x64 /p:ConfigurationName=Release`
 
 ### Unity engine
@@ -440,13 +440,13 @@ See the test project's source code for more complete working examples.
 
 Performance is in most cases similar to raw P/Invoke calls and generally only matters if you are doing millions of function calls per second.
 
-On Windows 10 using .Net Core 3.1 or .Net Framework 4.8, simple function calls from C# to C++ without parameters can be expected to have 5-10 CPU cycles overhead, and 25 cycles in the other direction. Passing simple parameters and structs between C# and C++ has about the same overhead as between two C++ functions, i.e. it can be even zero if passed in registers, or a few cycles if passed on the stack. The `vectorcall` calling convention is not supported between C# and C++. Passing strings or delegates typically has 100-500 CPU cycles overhead.
+On Windows 10 using .Net 5.0, .Net Core 3.1 or .Net Framework 4.8, simple function calls from C# to C++ without parameters can be expected to have 5-10 CPU cycles overhead, and 25 cycles in the other direction. Passing simple parameters and structs between C# and C++ has about the same overhead as between two C++ functions, i.e. it can be even zero if passed in registers, or a few cycles if passed on the stack. The `vectorcall` calling convention is not supported between C# and C++. Passing strings or delegates typically has 100-500 CPU cycles overhead.
 
-On Ubuntu Linux 18.04 using .Net Core 3.1, the performance is somewhat worse: 80 CPU cycles for C# to C++ calls, 260 cycles for C++ to C# calls, 500 cycles for passing short strings and 2000 for passing delegates.
+On Ubuntu Linux 18.04 using .Net 5.0 or .Net Core 3.1, the performance is somewhat worse: 80 CPU cycles for C# to C++ calls, 260 cycles for C++ to C# calls, 500 cycles for passing short strings and 2000 for passing delegates.
 
-With Unity using IL2CPP, simple function calls are almost as fast as on .Net Core on Windows, while strings and callbacks are about twice as slow.
+With Unity using IL2CPP, simple function calls are almost as fast as on .Net 5.0 on Windows, while strings and callbacks are about twice as slow.
 
-On Mono, the P/Invoke calls used by RabbitCall are significantly slower than on .Net Core/Framework, and simple function calls may take hundreds of CPU cycles. This might not be a limiting factor in most cases, but you might want to use Mono's "internal calls" instead in the most performance-critical functions.
+On Mono, the P/Invoke calls used by RabbitCall are significantly slower than on .Net 5.0, and simple function calls may take hundreds of CPU cycles. This might not be a limiting factor in most cases, but you might want to use Mono's "internal calls" instead in the most performance-critical functions.
 
 ## Large project considerations
 
